@@ -1,0 +1,360 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#173b2f">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Spraying Log">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>SideCore Spraying</title>
+<style>
+:root{
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+  color:#17231f;background:#f3f5f4
+}
+*{box-sizing:border-box}
+body{margin:0;background:#f3f5f4}
+header{
+  position:sticky;top:0;z-index:5;
+  background:#173b2f;color:#fff;padding:16px 18px 14px;
+  box-shadow:0 2px 10px #0002
+}
+header h1{font-size:19px;margin:0}
+header p{font-size:12px;margin:4px 0 0;opacity:.78}
+main{max-width:760px;margin:auto;padding:13px}
+.card{
+  background:#fff;border-radius:15px;padding:14px;margin-bottom:13px;
+  box-shadow:0 1px 7px #00000010
+}
+h2{font-size:15px;margin:0 0 12px;color:#173b2f}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.full{grid-column:1/-1}
+label{font-size:12px;font-weight:700;color:#53635c;display:block;margin:0 0 5px}
+input,select,textarea,button{font:inherit}
+input,select,textarea{
+  width:100%;border:1px solid #ccd6d1;border-radius:10px;
+  padding:11px;background:#fff;color:#17231f;outline:none
+}
+textarea{min-height:78px;resize:vertical}
+.hidden{display:none}
+.other{margin-top:7px}
+.chem{display:grid;grid-template-columns:1.15fr 1fr;gap:8px;margin-bottom:10px}
+.chem .other{grid-column:1/-1;margin-top:0}
+.send{
+  width:100%;border:0;border-radius:14px;padding:16px;
+  font-weight:800;font-size:16px;background:#1f5c47;color:white
+}
+.send:disabled{opacity:.55}
+.status{
+  display:none;background:#eaf1ed;color:#254d3d;padding:10px 12px;
+  border-radius:10px;margin-bottom:12px;font-size:12px
+}
+.status.show{display:block}
+.small{font-size:11px;color:#708079;line-height:1.4;margin:9px 2px 0}
+@media(max-width:620px){
+  .grid{grid-template-columns:1fr}
+  .full{grid-column:auto}
+  .chem{grid-template-columns:1fr}
+  .chem .other{grid-column:auto}
+}
+</style>
+</head>
+<body>
+<header>
+  <h1>SideCore Spraying</h1>
+  <p>Offline field log</p>
+</header>
+
+<main>
+  <div id="status" class="status"></div>
+
+  <form id="form">
+    <section class="card">
+      <h2>Job</h2>
+      <div class="grid">
+        <div>
+          <label>Date</label>
+          <input id="date" type="date" required>
+        </div>
+
+        <div>
+          <label>Operator</label>
+          <select id="operator">
+            <option>Ili</option>
+            <option>Other</option>
+          </select>
+          <input id="operatorOther" class="other hidden" placeholder="Operator name">
+        </div>
+
+        <div>
+          <label>Property / Site</label>
+          <input id="property" placeholder="e.g. Home Farm">
+        </div>
+
+        <div>
+          <label>Crop / Area</label>
+          <select id="crop">
+            <option>Apple</option><option>Plum</option><option>Avocado</option><option>Kiwi</option>
+            <option>Park</option><option>Building</option><option>Nursery</option><option>Mango</option><option>Other</option>
+          </select>
+          <input id="cropOther" class="other hidden" placeholder="Crop / area">
+        </div>
+
+        <div>
+          <label>Block</label>
+          <input id="block" placeholder="e.g. Block 18">
+        </div>
+
+        <div>
+          <label>Spray Type</label>
+          <select id="sprayType">
+            <option>Hand Gun</option><option>Side Arm</option><option>Back Arm</option><option>Other</option>
+          </select>
+          <input id="sprayTypeOther" class="other hidden" placeholder="Spray type">
+        </div>
+
+        <div><label>Row Start</label><input id="rowStart" inputmode="numeric"></div>
+        <div><label>Row End</label><input id="rowEnd" inputmode="numeric"></div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Tank & Chemicals</h2>
+      <div class="grid">
+        <div><label>Tank #</label><input id="tankNo" inputmode="numeric"></div>
+        <div><label>Tank Capacity (L)</label><input id="tankCapacity" type="number" min="0" step="1"></div>
+        <div class="full"><label>Litres Prepared / Put in Tank (L)</label><input id="mixVolume" type="number" min="0" step="1"></div>
+
+        <div class="full">
+          <label>Chemical 1</label>
+          <div class="chem">
+            <select id="chem1">
+              <option value="">— None —</option><option>Glyphosate 450</option><option>Glufosinate 200</option><option>Nu-Film P</option><option>Other</option>
+            </select>
+            <input id="chem1Rate" placeholder="Amount / rate">
+            <input id="chem1Other" class="other hidden" placeholder="Chemical name">
+          </div>
+
+          <label>Chemical 2</label>
+          <div class="chem">
+            <select id="chem2">
+              <option value="">— None —</option><option>Glyphosate 450</option><option>Glufosinate 200</option><option>Nu-Film P</option><option>Other</option>
+            </select>
+            <input id="chem2Rate" placeholder="Amount / rate">
+            <input id="chem2Other" class="other hidden" placeholder="Chemical name">
+          </div>
+
+          <label>Chemical 3</label>
+          <div class="chem" style="margin-bottom:0">
+            <select id="chem3">
+              <option value="">— None —</option><option>Glyphosate 450</option><option>Glufosinate 200</option><option>Nu-Film P</option><option>Other</option>
+            </select>
+            <input id="chem3Rate" placeholder="Amount / rate">
+            <input id="chem3Other" class="other hidden" placeholder="Chemical name">
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Weather</h2>
+      <div class="grid">
+        <div><label>Wind Speed (km/h)</label><input id="windSpeed" type="number" min="0" step="0.1"></div>
+        <div>
+          <label>Wind Direction</label>
+          <select id="windDirection">
+            <option value="">— Select —</option>
+            <option>N</option><option>NE</option><option>E</option><option>SE</option>
+            <option>S</option><option>SW</option><option>W</option><option>NW</option>
+            <option>Variable</option><option>Other</option>
+          </select>
+          <input id="windDirectionOther" class="other hidden" placeholder="Direction">
+        </div>
+        <div class="full"><label>Weather / Other</label><input id="weatherOther"></div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Time & Notes</h2>
+      <div class="grid">
+        <div><label>Start Time</label><input id="startTime" type="time"></div>
+        <div><label>End Time</label><input id="endTime" type="time"></div>
+        <div class="full"><label>Notes</label><textarea id="notes"></textarea></div>
+      </div>
+    </section>
+
+    <section class="card">
+      <button class="send" id="sendBtn" type="submit">SEND</button>
+      <div class="small">
+        Draft is saved automatically. If sharing is cancelled, nothing is cleared.
+      </div>
+    </section>
+  </form>
+</main>
+
+<script>
+const $ = id => document.getElementById(id);
+const KEY = 'sidecore_spraying_pwa_draft_v1';
+
+function today(){
+  const d = new Date(), off = d.getTimezoneOffset();
+  return new Date(d.getTime()-off*60000).toISOString().slice(0,10);
+}
+
+const ids = [
+  'date','operator','operatorOther','property','crop','cropOther','block','sprayType','sprayTypeOther',
+  'rowStart','rowEnd','tankNo','tankCapacity','mixVolume',
+  'chem1','chem1Rate','chem1Other','chem2','chem2Rate','chem2Other','chem3','chem3Rate','chem3Other',
+  'windSpeed','windDirection','windDirectionOther','weatherOther','startTime','endTime','notes'
+];
+
+function setOther(selectId,inputId){
+  const show = $(selectId).value === 'Other';
+  $(inputId).classList.toggle('hidden', !show);
+  if(!show) $(inputId).value = '';
+}
+function updateOthers(){
+  setOther('operator','operatorOther');
+  setOther('crop','cropOther');
+  setOther('sprayType','sprayTypeOther');
+  setOther('windDirection','windDirectionOther');
+  setOther('chem1','chem1Other');
+  setOther('chem2','chem2Other');
+  setOther('chem3','chem3Other');
+}
+
+function saveDraft(){
+  const d={}; ids.forEach(id=>d[id]=$(id).value);
+  localStorage.setItem(KEY,JSON.stringify(d));
+}
+function loadDraft(){
+  try{
+    const d=JSON.parse(localStorage.getItem(KEY)||'{}');
+    ids.forEach(id=>{ if(d[id]!==undefined) $(id).value=d[id]; });
+  }catch(e){}
+  if(!$('date').value) $('date').value=today();
+  updateOthers();
+}
+function resetForm(){
+  $('form').reset();
+  $('date').value=today();
+  $('operator').value='Ili';
+  $('crop').value='Apple';
+  $('sprayType').value='Hand Gun';
+  localStorage.removeItem(KEY);
+  updateOthers();
+}
+function selected(id,other){
+  return $(id).value==='Other' ? ($(other).value.trim()||'Other') : $(id).value.trim();
+}
+function chem(n){
+  const v=$('chem'+n).value.trim();
+  if(!v) return '';
+  const name=v==='Other' ? ($('chem'+n+'Other').value.trim()||'Other') : v;
+  const rate=$('chem'+n+'Rate').value.trim();
+  return rate ? `${name} — ${rate}` : name;
+}
+function line(k,v){return v?`${k}: ${v}`:''}
+
+function summary(){
+  const rowStart=$('rowStart').value.trim(), rowEnd=$('rowEnd').value.trim();
+  const rows = rowStart && rowEnd ? `${rowStart} → ${rowEnd}` : (rowStart||rowEnd||'');
+
+  const tankParts=[];
+  if($('tankNo').value.trim()) tankParts.push('#'+$('tankNo').value.trim());
+  if($('mixVolume').value.trim()) tankParts.push($('mixVolume').value.trim()+' L prepared');
+  if($('tankCapacity').value.trim()) tankParts.push($('tankCapacity').value.trim()+' L capacity');
+
+  const windParts=[];
+  if($('windSpeed').value.trim()) windParts.push($('windSpeed').value.trim()+' km/h');
+  const wd=selected('windDirection','windDirectionOther'); if(wd) windParts.push(wd);
+
+  const lines=[
+    'SIDECORE SPRAYING','',
+    line('Date',$('date').value),
+    line('Operator',selected('operator','operatorOther')),
+    line('Property / Site',$('property').value.trim()),
+    line('Crop / Area',selected('crop','cropOther')),
+    line('Block',$('block').value.trim()),
+    line('Rows',rows),
+    line('Spray Type',selected('sprayType','sprayTypeOther')),
+    line('Tank',tankParts.join(' — '))
+  ].filter(x=>x!=='');
+
+  const chems=[chem(1),chem(2),chem(3)].filter(Boolean);
+  if(chems.length){
+    lines.push('Chemicals:');
+    chems.forEach(c=>lines.push('- '+c));
+  }
+
+  const time = $('startTime').value && $('endTime').value
+    ? `${$('startTime').value}–${$('endTime').value}`
+    : ($('startTime').value || $('endTime').value || '');
+
+  const lower=[
+    line('Wind',windParts.join(' — ')),
+    line('Weather / Other',$('weatherOther').value.trim()),
+    line('Time',time),
+    line('Notes',$('notes').value.trim())
+  ].filter(Boolean);
+
+  if(lower.length){lines.push('');lines.push(...lower);}
+  return lines.join('\n');
+}
+
+function status(msg){
+  const el=$('status'); el.textContent=msg; el.classList.add('show');
+  setTimeout(()=>el.classList.remove('show'),4500);
+}
+
+['operator','crop','sprayType','windDirection','chem1','chem2','chem3'].forEach(id=>{
+  $(id).addEventListener('change',()=>{updateOthers();saveDraft();});
+});
+ids.forEach(id=>{
+  $(id).addEventListener('input',saveDraft);
+  $(id).addEventListener('change',saveDraft);
+});
+
+$('form').addEventListener('submit',async e=>{
+  e.preventDefault();
+  saveDraft();
+  const text=summary();
+  const btn=$('sendBtn');
+  btn.disabled=true;
+  btn.textContent='OPENING SHARE…';
+
+  try{
+    if(!navigator.share) throw new Error('Web Share not supported');
+    await navigator.share({title:'SideCore Spraying',text});
+    resetForm();
+    status('Ready for next record.');
+  }catch(err){
+    if(err && err.name==='AbortError'){
+      status('Share cancelled — form kept.');
+    }else{
+      try{
+        await navigator.clipboard.writeText(text);
+        status('Sharing is unavailable here. Note copied to clipboard.');
+      }catch(e2){
+        status('Sharing unavailable. Open this installed app in Safari/Chrome.');
+      }
+    }
+  }finally{
+    btn.disabled=false;
+    btn.textContent='SEND';
+  }
+});
+
+loadDraft();
+
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>{
+    navigator.serviceWorker.register('./sw.js').catch(()=>{});
+  });
+}
+</script>
+</body>
+</html>
